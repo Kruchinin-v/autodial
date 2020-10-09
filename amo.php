@@ -26,7 +26,6 @@ if (isset($_GET['stat'])) {
 
 require('/var/www/html/amocrm/tokens/access_token.php');
 
-//$user_hash = 'a6952b1cb4dae7dcbaf37cf2b49903c999488691';
 
 # получение id контакта и ответственного, для получения их номеров телефонов
 list ($id_contact, $id_user) = getContact($id_lead, $access_token);
