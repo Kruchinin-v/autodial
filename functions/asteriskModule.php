@@ -20,7 +20,7 @@ date_default_timezone_set('UTC');
 
 
 
-function calling($fromPhone, $toPhone, $stat = 0) {
+function calling($fromPhone, $toPhone, $type='full', $phone=100) {
 
     if (AC_PORT<1) die('Please, configure settings first!'); // die if not
 
@@ -134,9 +134,6 @@ function calling($fromPhone, $toPhone, $stat = 0) {
            file_put_contents($file, var_export($str,true));
         }
 
-
-//        echo "\nend\n";
-
         return $r;
     }
 
@@ -170,52 +167,41 @@ function calling($fromPhone, $toPhone, $stat = 0) {
         return $messages;
     }
 
-
-
     $resp=asterisk_req($loginArr,true);
 
     // problems? exiting
     if ($resp[0]['response']!=='Success') answer(array('status'=>'error','data'=>$resp[0]));
-//~~~~~~~~~~~~~~~~
-    $file = '/tmp/ans.txt';
-    file_put_contents($file, var_export($stat,true));
-//~~~~~~~~~~~~~~~~
-    if ($stat != 0) {
-        # звонок сначала клиенту
-        $params=array(
-            'Action'=>'Originate',
-            'ActionID'=>'myId',
-//            'channel'=>'Local/'.intval($toPhone) . "@from-internal",
-            'channel'=>'Local/'.intval($toPhone) . "@amocrm-callthelist-client",
-            'Exten'=>strval($fromPhone),
-            'Context'=>'amocrm',
-            'priority'=>'1',
-            'Timeout'=>'160000',
-            'Callerid'=>'amocrm <' . $toPhone . '>',
-            'Async'=>'Yes',
-            // Not Implemented:
-            //'Callernumber'=>'150',
-            //'CallerIDName'=>'155',
-        );
+
+    $channel = 'Local/'.intval($fromPhone) . "@amocrm";
+    $exten_context = "amocrm-out";
+
+//    print("\ntype: " . $type . "\n" );
+
+    if ($type == 'simple') {
+        $channel = "PJSIP/" . intval($phone);
+        if ($phone == 0) {
+            $channel = "PJSIP/" . intval($fromPhone);
+        }
+        $exten_context = "from-internal";
     }
-    else {
-        # звонок сначала МП
-        $params=array(
-            'Action'=>'Originate',
-            'ActionID'=>'myId',
-            'channel'=>'Local/'.intval($fromPhone) . "@amocrm",             # звонить сначала мп
-            'Exten'=>strval($toPhone),                                      # звонить сначала мп
-//            'Context'=>'from-internal',                                    # звонить сначала мп
-            'Context'=>'amocrm-out',                                    # звонить сначала мп
-            'priority'=>'1',
-            'Timeout'=>'190000',
-            'Callerid'=>$toPhone . ' <' . $toPhone . '>',
-            'Async'=>'Yes',
-            // Not Implemented:
-            //'Callernumber'=>'150',
-            //'CallerIDName'=>'155',
-        );
-    }
+    print("\nchannel: " . $channel . "\n" );
+
+    # звонок сначала МП
+    $params=array(
+        'Action'=>'Originate',
+        'ActionID'=>'myId',
+        'channel'=> $channel,              # звонить сначала мп
+        'Exten'=> strval($toPhone),                                      # звонить сначала мп
+        'Context'=> $exten_context,                                    # звонить сначала мп
+        'priority'=>'1',
+        'Timeout'=>'190000',
+        'Callerid'=>$toPhone . ' <' . $toPhone . '>',
+        'Async'=>'Yes',
+        // Not Implemented:
+        //'Callernumber'=>'150',
+        //'CallerIDName'=>'155',
+    );
+
 
 
 
