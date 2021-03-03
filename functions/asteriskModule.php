@@ -184,7 +184,9 @@ function calling($fromPhone, $toPhone, $type='full', $phone=100) {
         }
         $exten_context = "from-internal";
     }
-    print("\nchannel: " . $channel . "\n" );
+    elseif ($type == 'withoutReset') {
+        $exten_context = "from-internal";
+    }
 
     # звонок сначала МП
     $params=array(
