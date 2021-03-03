@@ -20,7 +20,6 @@ if (isset($_GET['stat'])) {
     $stat = $_GET['stat'];
 }
 
-//$id_lead = '29195074';
 //$id_lead = '31407388';
 
 if (isset($_GET['type'])) {
